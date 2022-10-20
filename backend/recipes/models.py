@@ -4,21 +4,6 @@ from django.db import models
 from users.models import User
 
 
-BLUE = "#0000FF"
-GREEN = "#008000"
-RED = "#FF0000"
-WHITE = '#ffffff'
-YELLOW = "#FFFF00"
-
-COLOR_CHOICES = [
-    (BLUE, "Синий"),
-    (GREEN, "Зелёный"),
-    (RED, "Красный"),
-    (WHITE, 'Белый'),
-    (YELLOW, "Жёлтый"),
-]
-
-
 class Tag(models.Model):
     name = models.CharField(
         'Тэг',
@@ -28,7 +13,6 @@ class Tag(models.Model):
     color = models.CharField(
         'Цвет',
         max_length=7,
-        choices=COLOR_CHOICES,
         unique=True
     )
     slug = models.SlugField(
@@ -38,7 +22,7 @@ class Tag(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
 
@@ -57,7 +41,7 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
@@ -87,13 +71,14 @@ class Recipe(models.Model):
         'Название рецепта', max_length=200)
     image = models.ImageField(
         'Картинка', upload_to='recipes/')
-    text = models.TextField('Рецепт приготовления блюда')
+    text = models.TextField(
+        'Рецепт приготовления блюда',
+        max_length=3000)
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления в минутах',
         validators=[
             MinValueValidator(1, 'Слишком маленькое время приготовления'),
-            MaxValueValidator(500,'Макс. время приготовления - 600 минут'
-            )
+            MaxValueValidator(500, 'Макс. время приготовления - 500 минут')
         ]
     )
     pub_date = models.DateTimeField(
@@ -102,7 +87,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -124,7 +109,8 @@ class IngredientsInRecipe(models.Model):
     amount = models.PositiveSmallIntegerField(
         'Количество',
         validators=[
-            MinValueValidator(1, 'Слишком маленькое количество')
+            MinValueValidator(1, 'Слишком маленькое количество'),
+            MaxValueValidator(100, 'Слишком большое количество')
         ]
     )
 
@@ -160,7 +146,7 @@ class ShoppingCart(models.Model):
         ]
 
     def __str__(self):
-        return (f'Список покупок пользователя {self.user.username}')
+        return f'Список покупок пользователя {self.user.username}'
 
 
 class Favorite(models.Model):
@@ -178,7 +164,7 @@ class Favorite(models.Model):
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-id',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные рецепты'
         constraints = [

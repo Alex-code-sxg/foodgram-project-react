@@ -7,6 +7,7 @@ from users.models import User
 
 
 class IngredientFilter(FilterSet):
+    '''Фильтр ингридиентов'''
     name = CharFilter(lookup_expr='istartswith')
 
     class Meta:
@@ -15,6 +16,7 @@ class IngredientFilter(FilterSet):
 
 
 class TagFilter(FilterSet):
+    '''Фильтр тэгов'''
     tags = ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
@@ -31,6 +33,7 @@ class TagFilter(FilterSet):
         fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
 
     def get_is_favorited(self, queryset, name, value):
+        '''Метод для избранного'''
         if bool(value) and not self.request.user.is_anonymous:
             return queryset.filter(
                 favorites__user=self.request.user
@@ -38,6 +41,7 @@ class TagFilter(FilterSet):
         return queryset.exclude(favorites__user=self.request.user)
 
     def get_is_in_shopping_cart(self, queryset, name, value):
+        '''Метод для корзины'''
         if bool(value) and not self.request.user.is_anonymous:
             return queryset.filter(shopping_cart__user=self.request.user)
         return queryset.exclude(shopping_cart__user=self.request.user)

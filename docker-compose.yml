@@ -8,9 +8,7 @@ services:
       - ./.env
   
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: alexcodesxg/backend
     restart: always
     volumes:
       - static_value:/app/static/
@@ -21,9 +19,7 @@ services:
       - ./.env
   
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: alexcodesxg/frontend
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
@@ -39,8 +35,6 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static/
       - media_value:/var/html/media/
-    depends_on:
-      - backend
 
 volumes:
   static_value:

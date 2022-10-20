@@ -2,14 +2,16 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+ADMIN = 'admin'
+USER = 'user'
+GUEST = 'guest'
+
+
 class User(AbstractUser):
-    ADMIN = 'admin'
-    GUEST = 'guest'
-    USER = 'user'
     USER_ROLES = [
-        (USER, 'user'),
-        (GUEST, 'guest'),
-        (ADMIN, 'admin'),
+        (ADMIN, ADMIN),
+        (USER, USER),
+        (GUEST, GUEST),
     ]
     email = models.EmailField(
         'Электронная почта',
@@ -19,7 +21,6 @@ class User(AbstractUser):
     )
     username = models.CharField(
         max_length=150,
-        blank=False,
         unique=True
     )
     first_name = models.CharField(
@@ -38,19 +39,29 @@ class User(AbstractUser):
         'Пароль',
         help_text='Пароль',
         max_length=150,
-        blank=False
     )
     role = models.CharField(
         'Роль',
         help_text='Роль пользователя',
         max_length=150,
-        blank=False,
         choices=USER_ROLES,
         default='user',
     )
 
+    @property
+    def is_admin(self):
+        return self.role == ADMIN
+
+    @property
+    def is_user(self):
+        return self.role == USER
+
+    @property
+    def is_guest(self):
+        return self.role == GUEST
+
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'password']
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name', 'password')
 
     class Meta:
         verbose_name = 'Пользователь'
