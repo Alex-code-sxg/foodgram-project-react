@@ -17,7 +17,6 @@ def get_shopping_list(ingredient_list):
     response = HttpResponse(
         shopping_cart, content_type='text.txt; charset=utf-8'
     )
-    response['Content-Disposition'] = (
-             f'attachment; filename="shopping_list.txt"'
-    )
+    response['Content-Disposition'] = ('attachment; '
+                                       'filename="shopping_list.txt"')
     return response
