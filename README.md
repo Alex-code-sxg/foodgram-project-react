@@ -18,3 +18,7 @@ docker-compose exec backend python manage.py migrate
 ```
 docker-compose exec backend python manage.py collectstatic --no-input
 ```
+### Заполните базу тестовыми данными:
+```
+docker-compose exec backend python manage.py loaddata dump.json
+```

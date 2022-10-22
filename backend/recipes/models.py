@@ -1,4 +1,5 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
 
 from users.models import User
@@ -13,7 +14,12 @@ class Tag(models.Model):
     color = models.CharField(
         'Цвет',
         max_length=7,
-        unique=True
+        unique=True,
+        validators=(
+            RegexValidator(
+                regex='^#[a-fA-F0-9]{6}$', code='wrong_hex_code',
+                message='Неправильный формат цвета'),
+        )
     )
     slug = models.SlugField(
         'Группа блюд',
