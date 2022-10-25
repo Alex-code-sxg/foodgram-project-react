@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
-
 
 ADMIN = 'admin'
 USER = 'user'
@@ -92,5 +92,13 @@ class Subscribe(models.Model):
             models.UniqueConstraint(
                 fields=('user', 'author'),
                 name='unique_subscription_user_author'
-            )
+            ),
+            models.CheckConstraint(
+                name="self_follow",
+                check=~models.Q(user=models.F("author")),
+            ),
         ]
+
+    def clean(self):
+        if self.user == self.author:
+            raise ValidationError('Нельзя подписаться на самого себя!')

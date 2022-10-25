@@ -127,40 +127,30 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         ]
         IngredientsInRecipe.objects.bulk_create(ingredients_list)
 
-    def validate_indredients_uniq(self, data):
-        '''Валидация уникальности ингридиентов в рецепте'''
-        ingredients = data.get('ingredientsinrecipe_set')
-        validated_ingredients = []
-        for ingredient in ingredients:
-            amount = ingredient['amount']
-            if amount <= 0:
-                raise serializers.ValidationError(
-                    {'errors': ('Количество ингредиента должно быть '
-                                'больше 0')})
-            if ingredient in validated_ingredients:
-                raise serializers.ValidationError(
-                    'Ингредиенты должны быть уникальными.')
-            validated_ingredients.append(ingredient)
-        return data
-
-    def validate_ingrediets(self, data):
-        '''Валидация ингридиентов (наличие, количество,)'''
+    def validate_ingredients(self, data):
+        """Валидация ингридиентов (наличие, уникальность,, количество)"""
         ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError(
                 'Добавьте хотя бы один ингредиент в рецепт!')
+        ingredients_list = []
         for ingredient in ingredients:
+            check_id = ingredient['id']
+            check_ingredient = Ingredient.objects.filter(id=check_id)
+            if not check_ingredient.exists():
+                raise serializers.ValidationError(
+                    'Данного продукта нет в базе!')
+            if check_id in ingredients_list:
+                raise serializers.ValidationError('Ингридиенты должны '
+                                                  'быть уникальными')
             try:
                 if int(ingredient.get('amount')) <= 0:
                     raise serializers.ValidationError(
-                        'Количество ингридиента должно быть больше 0!')
+                        'Количество должно быть положительным!')
             except Exception:
                 raise serializers.ValidationError({'amount': 'Колличество'
                                                    'должно быть числом'})
-            ingredient_id = ingredient['id']
-            if not Ingredient.objects.filter(id=ingredient_id).exists():
-                raise serializers.ValidationError(
-                    'Ингридиент отсутсвует в базе данных!')
+            ingredients_list.append(check_id)
         return data
 
     def validate_tags(self, data):
@@ -225,18 +215,18 @@ class SubscribeSerializer(UserSerializer):
     recipes_count = serializers.ReadOnlyField(source='author.recipes.count')
 
     class Meta:
-        model = Subscribe
+        model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_is_subscribed(self, obj):
-        '''Метод проверки наличия подписки'''
+        '''Метод получения наличия подписки'''
         return Subscribe.objects.filter(
             user=obj.user, author=obj.author
         ).exists()
 
     def get_recipes(self, obj):
-        '''Сериализатор подписки на автора'''
+        '''Метод получения рецептов автора'''
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
         queryset = Recipe.objects.filter(author=obj.author)

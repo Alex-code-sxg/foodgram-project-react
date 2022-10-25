@@ -14,10 +14,10 @@ from api.serializers import (FavoriteCartSerializer, IngredientSerializer,
                              RecipeCreateSerializer, RecipeReadSerializer,
                              SubscribeSerializer, TagSerializer,
                              UserSerializer)
+from api.utils import get_shopping_list
 from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
                             ShoppingCart, Tag)
 from users.models import Subscribe, User
-from api.utils import get_shopping_list
 
 
 class UserViewSet(DjoserUserViewSet):
